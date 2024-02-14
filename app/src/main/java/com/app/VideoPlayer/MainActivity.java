@@ -1,6 +1,5 @@
 package com.app.VideoPlayer;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.res.Configuration;
@@ -15,23 +14,15 @@ public class MainActivity extends AppCompatActivity {
     private static final String VIDEO_POSITION = "video_position";
 
     private VideoView video;
+    private Uri uri;
     private int videoPosition;
 
 
     public void createPortrait() {
-        video = findViewById(R.id.video);
         Button play = findViewById(R.id.playButton);
         Button replay = findViewById(R.id.replayButton);
 
-        String path = "android.resource://com.app.VideoPlayer/" + R.raw.file;
-        Uri uri = Uri.parse(path);
-
-        video.setVideoURI(uri);
-        video.requestFocus();
-
-        if (video.isPlaying())
-            play.setText(R.string.pause);
-
+        play.setText(R.string.pause);
 
         View.OnClickListener playListener = v -> {
             if (video.isPlaying()) {
@@ -42,8 +33,9 @@ public class MainActivity extends AppCompatActivity {
             video.start();
             play.setText(R.string.pause);
         };
+
         View.OnClickListener replayListener = v -> {
-            video.setVideoPath(path);
+            video.setVideoURI(uri);
             video.requestFocus();
             video.start();
             play.setText(R.string.pause);
@@ -53,28 +45,28 @@ public class MainActivity extends AppCompatActivity {
         replay.setOnClickListener(replayListener);
     }
 
-    public void createLandscape() {
-        video = findViewById(R.id.video);
-
-        String path = "android.resource://com.app.VideoPlayer/" + R.raw.file;
-        Uri uri = Uri.parse(path);
-
-        video.setVideoURI(uri);
-        video.requestFocus();
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int currentOrientation = this.getResources().getConfiguration().orientation;
-        if(currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            setContentView(R.layout.landscape_main);
-            createLandscape();
-        }
-        else {
+        if(currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
             setContentView(R.layout.activity_main);
             createPortrait();
+        } else {
+            setContentView(R.layout.landscape_main);
         }
+
+        video = findViewById(R.id.video);
+        String path = "android.resource://com.app.VideoPlayer/" + R.raw.file;
+        uri = Uri.parse(path);
+
+        video.setVideoURI(uri);
+        video.requestFocus();
+
+        MediaController mediaController = new MediaController(getApplicationContext());
+        video.setMediaController(mediaController);
+
+
         if (savedInstanceState != null) {
             videoPosition = savedInstanceState.getInt(VIDEO_POSITION);
         }
